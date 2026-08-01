@@ -158,14 +158,25 @@ $user_type = $_SESSION["user_type"];
             <div class="card">
                 <h3>🎨 Customize</h3>
                 <p>Choose colors, layouts and templates.</p>
-                <a href="#" class="btn">Coming Soon</a>
+                <a href="customize/customize.php" class="btn">Customize</a>
             </div>
-
             <div class="card">
-                <h3>👀 Preview</h3>
-                <p>Preview your portfolio before publishing.</p>
-                <a href="#" class="btn">Coming Soon</a>
-            </div>
+    <h3>🚀 My Projects</h3>
+    <p>Add and manage the projects displayed on your portfolio.</p>
+
+    <a
+        href="projects/manage_projects.php"
+        class="btn"
+    >
+        Manage Projects
+    </a>
+</div>
+
+           <div class="card">
+    <h3>👀 Preview</h3>
+    <p>Preview your portfolio before publishing.</p>
+    <a href="preview/portfolio.php" class="btn">View Portfolio</a>
+</div>
 
         </div>
 
