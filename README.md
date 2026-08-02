@@ -1,65 +1,101 @@
 # 🚀 PortfolioForge
 
-PortfolioForge is a dynamic web-based portfolio builder that allows users to create, manage, customize, and showcase their professional profiles through a personalized portfolio website.
+**PortfolioForge** is a dynamic web-based portfolio builder that allows users to create, manage, customize, preview, and download their professional portfolios.
 
-The platform is designed especially for students, developers, and professionals who want to create a structured and professional online portfolio without building everything from scratch.
+The platform is designed for **students, developers, and professionals** who want to create a structured and professional portfolio without building a website from scratch.
 
-Users can manage their personal information, education, skills, projects, experience, achievements, and contact details, customize their portfolio, preview it, and download their portfolio as an A4-sized PDF.
+Users can manage their personal information, education, skills, projects, experience, extracurricular activities, certifications, and contact details. They can also customize their portfolio, preview the final design, and generate an **A4-sized PDF** of their portfolio.
 
 ---
 
 ## ✨ Features
 
-- 👤 User registration and login
-- 🔐 Session-based authentication
-- 📝 Personal profile management
-- 🎓 Education details
-- 💻 Skills management
-- 🚀 Project management
-- 🏆 Achievements and certifications
-- 💼 Experience details
-- 🎨 Portfolio customization
-- 👀 Portfolio preview
-- 📄 A4 PDF portfolio generation and download
-- 🗄️ MySQL database integration
-- 🔄 Update existing portfolio information
-- 📱 Responsive user interface
-- 🔒 User-specific portfolio data
-- 📊 CRUD operations for portfolio information
+### 🔐 Authentication
+- User registration
+- User login and logout
+- Session-based authentication
+- User-specific portfolio data
+
+### 👤 Profile Management
+- Personal information
+- Profile photo
+- Education details
+- Skills
+- Experience
+- Contact information
+- LinkedIn and GitHub profiles
+
+### 🚀 Project Management
+- Add projects
+- Edit projects
+- Delete projects
+- Project descriptions
+- Technologies used
+- GitHub/project links
+
+### 🏆 Activities & Certifications
+- Add extracurricular activities
+- Add certifications
+- Manage career-related achievements
+
+### 🎨 Portfolio Customization
+- Customize portfolio appearance
+- Multiple layout/template options
+- Theme customization
+- Personalized portfolio design
+
+### 👀 Portfolio Preview
+- Preview the complete portfolio
+- View profile information
+- View education and skills
+- View projects
+- View experience
+- View activities and certifications
+- View contact information
+
+### 📄 PDF Generation
+- Generate portfolio as an A4-sized PDF
+- Download portfolio directly
+- Professional resume-style formatting
+- Profile and portfolio information included in the generated PDF
+
+### 🗄️ Database
+- MySQL database integration
+- User-specific data storage
+- CRUD operations for portfolio information
+
+### 📱 User Interface
+- Clean and simple interface
+- Responsive design
+- Student-friendly portfolio creation workflow
 
 ---
 
 ## 🛠️ Technologies Used
 
 ### Frontend
-
 - HTML5
 - CSS3
 - JavaScript
 
 ### Backend
-
 - PHP
 
 ### Database
-
 - MySQL
 - phpMyAdmin
 
 ### PDF Generation
-
 - Dompdf
 - Composer
 
 ### Development Environment
-
 - XAMPP
 - Apache
 - MySQL
 - Visual Studio Code
 
 ### Version Control
-
 - Git
 - GitHub
 
@@ -88,7 +124,8 @@ PortfolioForge/
 │   └── Images and assets
 │
 ├── profile/
-│   └── Profile management files
+│   ├── Profile management files
+│   └── activities.php
 │
 ├── projects/
 │   └── Project management files
@@ -97,7 +134,7 @@ PortfolioForge/
 │   └── Portfolio customization files
 │
 ├── preview/
-│   └── Portfolio preview files
+│   └── portfolio.php
 │
 ├── pdf/
 │   └── generate_pdf.php
@@ -112,26 +149,38 @@ PortfolioForge/
 └── README.md
 ```
 
-> Note: The folder structure may change as the project continues to evolve.
+> **Note:** The folder structure may change as the project continues to evolve.
 
 ---
 
-## ⚙️ How to Run the Project
+# ⚙️ How to Run the Project
 
-### 1. Install XAMPP
+## 1. Install XAMPP
 
-Install XAMPP and start:
+Install [XAMPP](https://www.apachefriends.org/) and start:
 
 - Apache
 - MySQL
 
-### 2. Clone the Repository
+---
+
+## 2. Clone the Repository
+
+Open the terminal and run:
 
 ```bash
 git clone https://github.com/AkshataOntigodimath/PortfolioForge.git
 ```
 
-### 3. Move the Project
+Then enter the project directory:
+
+```bash
+cd PortfolioForge
+```
+
+---
+
+## 3. Move the Project to XAMPP
 
 Place the project folder inside:
 
@@ -139,23 +188,29 @@ Place the project folder inside:
 C:\xampp\htdocs\
 ```
 
-### 4. Install Composer Dependencies
+The final path should look like:
 
-Open the project folder in the terminal:
-
-```bash
-cd PortfolioForge
+```text
+C:\xampp\htdocs\PortfolioForge\
 ```
 
-Then run:
+---
+
+## 4. Install Composer Dependencies
+
+Make sure Composer is installed on your system.
+
+Inside the project directory, run:
 
 ```bash
 composer install
 ```
 
-This installs the required PHP dependencies, including Dompdf for PDF generation.
+This installs the required PHP dependencies, including **Dompdf** for PDF generation.
 
-### 5. Create the Database
+---
+
+## 5. Create the Database
 
 Open phpMyAdmin:
 
@@ -163,9 +218,13 @@ Open phpMyAdmin:
 http://localhost/phpmyadmin
 ```
 
-Create the required MySQL database and import the provided `.sql` database file.
+Create the required MySQL database.
 
-### 6. Configure Database Connection
+Import the project's SQL database file if one is included in the repository.
+
+---
+
+## 6. Configure Database Connection
 
 Open:
 
@@ -184,82 +243,150 @@ $password = "";
 $database = "portfolio_db";
 ```
 
-### 7. Run the Website
+---
 
-Open your browser and visit:
+## 7. Start the Project
+
+Make sure **Apache** and **MySQL** are running in XAMPP.
+
+Then open:
 
 ```text
 http://localhost/PortfolioForge/
 ```
 
----
+You can now:
 
-## 📄 PDF Generation
-
-PortfolioForge includes an A4 PDF generation feature using **Dompdf**.
-
-Users can:
-
-1. Create their portfolio
-2. Add personal information
-3. Add education and skills
-4. Add projects and experience
-5. Preview their portfolio
-6. Download their portfolio as an A4 PDF
-
-The generated PDF uses a clean and professional layout suitable for sharing and documentation.
+1. Create an account
+2. Log in
+3. Complete your profile
+4. Add education and skills
+5. Add projects
+6. Add experience
+7. Add activities and certifications
+8. Customize your portfolio
+9. Preview your portfolio
+10. Download the portfolio as a PDF
 
 ---
 
-## 🔐 Security
+# 📄 PDF Generation
 
-The project uses PHP session-based authentication and server-side processing to manage user access and portfolio information.
+PortfolioForge uses **Dompdf** to generate a downloadable A4 PDF.
 
-Current authentication features include:
+The PDF generation workflow is:
+
+```text
+Profile Information
+        ↓
+Portfolio Data
+        ↓
+Portfolio Preview
+        ↓
+PDF Generation
+        ↓
+A4 PDF Download
+```
+
+The generated PDF includes relevant portfolio information such as:
+
+- Name
+- Professional title
+- Contact details
+- About Me
+- Education
+- Skills
+- Projects
+- Experience
+- Other portfolio information
+
+The PDF is designed with a clean, professional layout suitable for sharing as a resume or portfolio document.
+
+---
+
+# 🎨 Portfolio Customization
+
+PortfolioForge provides customization options that allow users to personalize the appearance of their portfolio.
+
+Users can modify the portfolio design while maintaining a clean and professional presentation.
+
+The project currently supports different portfolio styles/templates, including:
+
+- Classic
+- Modern
+- Minimal
+
+---
+
+# 👀 Portfolio Preview
+
+The preview section allows users to see how their portfolio will appear before downloading or sharing it.
+
+The preview can display:
+
+- 👤 Personal information
+- 🎓 Education
+- 💻 Skills
+- 🚀 Projects
+- 💼 Experience
+- 🏆 Activities and certifications
+- 📞 Contact information
+- 🔗 LinkedIn and GitHub links
+- 🎨 Selected portfolio customization
+
+---
+
+# 🔐 Security
+
+PortfolioForge uses PHP session-based authentication and server-side processing to manage user access.
+
+Current security-related functionality includes:
 
 - User registration
 - User login
 - Session management
 - Logout functionality
-- User-specific portfolio information
+- User-specific portfolio data
+- Server-side database queries
 
-Future security improvements may include:
+### Future Security Improvements
 
-- 🔒 Stronger password security
+Possible improvements include:
+
+- 🔒 Stronger password hashing and security practices
 - 🛡️ Improved input validation
 - 🛡️ CSRF protection
 - 🔐 Additional authentication security
+- 🔒 Improved database security
 
 ---
 
-## 🎨 Portfolio Customization
+# 🗄️ Database & CRUD Operations
 
-PortfolioForge allows users to customize their portfolio according to their preferences.
+PortfolioForge uses **MySQL** to store and manage user portfolio information.
 
-Users can access the customization section to modify the appearance of their portfolio while maintaining a simple and professional design.
+The application demonstrates CRUD operations such as:
 
----
+- **Create** portfolio information
+- **Read** stored information
+- **Update** existing information
+- **Delete** selected information
 
-## 👀 Portfolio Preview
+This includes data related to:
 
-Users can preview their portfolio before downloading or sharing it.
-
-The preview allows users to verify:
-
-- Personal information
-- Education
-- Skills
+- Profiles
 - Projects
-- Experience
-- Contact information
-- Overall portfolio appearance
+- Activities
+- Certifications
+- Portfolio customization
 
 ---
 
+# 🎯 Project Purpose
 
-## 🎯 Project Purpose
+PortfolioForge was developed as a practical **Web Development project** to demonstrate the integration of multiple technologies into a complete web application.
 
-PortfolioForge was developed as a practical Web Development project to demonstrate skills in:
+The project demonstrates skills in:
 
 - Frontend development
 - Backend development
@@ -270,23 +397,52 @@ PortfolioForge was developed as a practical Web Development project to demonstra
 - Database management
 - PDF generation
 - Responsive UI development
+- Session management
 - Git and GitHub
 
-The project demonstrates the integration of frontend, backend, database, authentication, and document-generation functionality into a complete web application.
+The project combines frontend, backend, database, authentication, portfolio customization, preview, and document-generation functionality into a single application.
 
 ---
 
-## 🔮 Future Enhancements
+# 📌 Project Status
+
+## Core Development Completed ✅
+
+The current version supports:
+
+- ✅ User registration and login
+- ✅ Session-based authentication
+- ✅ Profile management
+- ✅ Education management
+- ✅ Skills management
+- ✅ Project management
+- ✅ Experience management
+- ✅ Activities and certifications
+- ✅ Portfolio customization
+- ✅ Portfolio preview
+- ✅ MySQL database integration
+- ✅ CRUD operations
+- ✅ A4 PDF generation
+- ✅ PDF download
+- ✅ Responsive interface
+
+The project is functional from **registration/login through portfolio creation, customization, preview, and PDF download**.
+
+Future enhancements can be added in subsequent versions.
+
+---
+
+# 🔮 Future Enhancements
 
 Possible future improvements include:
 
-- 🎨 Multiple portfolio templates
+- 🎨 Additional portfolio templates
 - 🌐 Custom portfolio URLs
 - 📊 Portfolio analytics
 - 🌓 Dark/light mode
-- 📱 Further mobile responsiveness
-- 🔗 Social media integration
-- 🖼️ Enhanced profile and project image uploads
+- 📱 Further mobile optimization
+- 🔗 Additional social media integration
+- 🖼️ Enhanced profile and project image management
 - 🤖 AI-assisted portfolio content generation
 - ☁️ Online deployment
 - 📧 Contact form and email integration
@@ -294,42 +450,32 @@ Possible future improvements include:
 
 ---
 
-## 📌 Project Status
 
-**Core development completed. ✅**
+# 👩‍💻 Developer
 
-The current version supports:
-
-- ✅ User authentication
-- ✅ Profile management
-- ✅ Project management
-- ✅ Portfolio customization
-- ✅ Portfolio preview
-- ✅ MySQL database integration
-- ✅ A4 PDF generation and download
-
-Additional features and improvements can be added in future versions.
-
----
-
-## 👩‍💻 Developer
-
-### Akshata R.O.
+## Akshata R.O.
 
 **Electronics and Communication Engineering**
 
-Interested in:
+### Areas of Interest
 
-- Web Development
-- Data Science
-- IoT
-- AI/ML
-- Embedded Systems
-- VLSI
+- 💻 Web Development
+- 📊 Data Science
+- 🤖 AI/ML
+- 🌐 IoT
+- 🔧 Embedded Systems
+- 💾 VLSI
 
 ---
 
+## ⭐ Project
 
-PortfolioForge was developed as a practical learning project to strengthen full-stack web development, database management, authentication, PDF generation, and software development skills.
+PortfolioForge was developed as a practical learning project to strengthen skills in:
 
-If you find this project useful, consider giving the repository a ⭐.
+**Full-Stack Web Development • PHP • MySQL • Authentication • CRUD • PDF Generation • Git & GitHub**
+
+If you find this project useful or interesting, consider giving the repository a ⭐.
+
+---
+
+© 2026 **PortfolioForge** | Developed by **Akshata R.O.**
