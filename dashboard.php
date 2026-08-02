@@ -322,6 +322,46 @@ $user_type = $_SESSION["user_type"] ?? "";
             </a>
 
         </div>
+        <!-- EXTRA CURRICULAR ACTIVITIES -->
+
+<div class="card">
+
+    <h3>🎯 Activities</h3>
+
+    <p>
+        Add your extra-curricular activities,
+        interests and achievements.
+    </p>
+
+    <a
+        href="profile/activities.php"
+        class="btn"
+    >
+        Manage Activities
+    </a>
+
+</div>
+
+
+<!-- CERTIFICATIONS -->
+
+<div class="card">
+
+    <h3>🏆 Certifications</h3>
+
+    <p>
+        Add your certifications,
+        courses and credentials.
+    </p>
+
+    <a
+        href="profile/certifications.php"
+        class="btn"
+    >
+        Manage Certifications
+    </a>
+
+</div>
 
 
         <!-- PREVIEW -->
