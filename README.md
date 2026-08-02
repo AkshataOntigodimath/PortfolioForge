@@ -256,23 +256,6 @@ The preview allows users to verify:
 
 ---
 
-## 📸 Screenshots
-
-Screenshots of the application can be added here to demonstrate the major features.
-
-Suggested screenshots:
-
-- 🏠 Home page
-- 🔐 Login page
-- 📝 Registration page
-- 📊 Dashboard
-- 👤 Profile management
-- 🚀 Project management
-- 🎨 Customization page
-- 👀 Portfolio preview
-- 📄 Generated PDF
-
----
 
 ## 🎯 Project Purpose
 
