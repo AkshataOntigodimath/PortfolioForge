@@ -8,124 +8,17 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 require_once "../config/db.php";
-
-/* Dompdf */
-
 require_once "../vendor/autoload.php";
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-
 $user_id = $_SESSION["user_id"];
 
 
-/* =========================
-   GET PROFILE
-   ========================= */
-
-$sql = "SELECT *
-        FROM profiles
-        WHERE user_id = ?";
-
-$stmt = $conn->prepare($sql);
-
-$stmt->bind_param(
-    "i",
-    $user_id
-);
-
-$stmt->execute();
-
-$result = $stmt->get_result();
-
-$profile = $result->fetch_assoc();
-
-$stmt->close();
-
-
-/* Profile not found */
-
-if (!$profile) {
-
-    echo "
-        <h2 style='
-            font-family: Arial;
-            text-align:center;
-            margin-top:50px;
-        '>
-            Please complete your profile first.
-        </h2>
-    ";
-
-    exit;
-}
-
-
-/* =========================
-   PROFILE DATA
-   ========================= */
-
-$full_name =
-    $profile["full_name"] ?? "";
-
-$title =
-    $profile["title"] ?? "";
-
-$bio =
-    $profile["bio"] ?? "";
-
-$education =
-    $profile["education"] ?? "";
-
-$skills =
-    $profile["skills"] ?? "";
-
-$experience =
-    $profile["experience"] ?? "";
-
-$phone =
-    $profile["phone"] ?? "";
-
-$location =
-    $profile["location"] ?? "";
-
-$linkedin =
-    $profile["linkedin"] ?? "";
-
-$github =
-    $profile["github"] ?? "";
-
-$profile_photo =
-    $profile["profile_photo"] ?? "";
-
-
-/* =========================
-   GET PROJECTS
-   ========================= */
-
-$projects_sql = "SELECT *
-                 FROM projects
-                 WHERE user_id = ?
-                 ORDER BY created_at DESC";
-
-$projects_stmt =
-    $conn->prepare($projects_sql);
-
-$projects_stmt->bind_param(
-    "i",
-    $user_id
-);
-
-$projects_stmt->execute();
-
-$projects_result =
-    $projects_stmt->get_result();
-
-
-/* =========================
-   ESCAPE HTML
-   ========================= */
+/* =====================================================
+   HELPER
+===================================================== */
 
 function e($value)
 {
@@ -137,17 +30,137 @@ function e($value)
 }
 
 
-/* =========================
-   CREATE PROJECT HTML
-   ========================= */
+/* =====================================================
+   GET PROFILE
+===================================================== */
+
+$sql = "SELECT *
+        FROM profiles
+        WHERE user_id = ?";
+
+$stmt = $conn->prepare($sql);
+
+$stmt->bind_param("i", $user_id);
+
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+$profile = $result->fetch_assoc();
+
+$stmt->close();
+
+
+if (!$profile) {
+
+    echo "
+    <h2 style='
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 100px;
+    '>
+        Please complete your profile first.
+    </h2>
+    ";
+
+    exit;
+}
+
+
+/* =====================================================
+   PROFILE DATA
+===================================================== */
+
+$full_name = $profile["full_name"] ?? "";
+$title = $profile["title"] ?? "";
+$bio = $profile["bio"] ?? "";
+$education = $profile["education"] ?? "";
+$skills = $profile["skills"] ?? "";
+$experience = $profile["experience"] ?? "";
+
+$phone = $profile["phone"] ?? "";
+$location = $profile["location"] ?? "";
+$linkedin = $profile["linkedin"] ?? "";
+$github = $profile["github"] ?? "";
+
+
+/* =====================================================
+   SKILLS
+===================================================== */
+
+$skills_html = "";
+
+$skill_list = explode(",", $skills);
+
+foreach ($skill_list as $skill) {
+
+    $skill = trim($skill);
+
+    if ($skill !== "") {
+
+        $skills_html .= "
+            <span class='skill'>
+                " . e($skill) . "
+            </span>
+        ";
+    }
+}
+
+
+/* =====================================================
+   CONTACT
+===================================================== */
+
+$contact_items = [];
+
+if (!empty($phone)) {
+    $contact_items[] = e($phone);
+}
+
+if (!empty($location)) {
+    $contact_items[] = e($location);
+}
+
+if (!empty($linkedin)) {
+    $contact_items[] = e($linkedin);
+}
+
+if (!empty($github)) {
+    $contact_items[] = e($github);
+}
+
+$contact_html = implode(
+    " <span class='separator'>|</span> ",
+    $contact_items
+);
+
+
+/* =====================================================
+   PROJECTS
+===================================================== */
 
 $projects_html = "";
 
+$projects_sql = "
+    SELECT *
+    FROM projects
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+";
 
-while (
-    $project =
-    $projects_result->fetch_assoc()
-) {
+$projects_stmt = $conn->prepare($projects_sql);
+
+$projects_stmt->bind_param(
+    "i",
+    $user_id
+);
+
+$projects_stmt->execute();
+
+$projects_result = $projects_stmt->get_result();
+
+
+while ($project = $projects_result->fetch_assoc()) {
 
     $project_name =
         $project["project_name"] ?? "";
@@ -164,101 +177,58 @@ while (
 
     $projects_html .= "
 
-        <div class='project'>
+    <div class='project'>
 
-            <h3>" .
-                e($project_name) .
-            "</h3>
+        <div class='project-name'>
+            " . e($project_name) . "
+        </div>
 
-            <p>" .
-                nl2br(
-                    e($description)
-                ) .
-            "</p>
-
-            <p>
-                <strong>
-                    Technologies:
-                </strong>
-                " .
-                e($technologies) .
-            "</p>
+        <div class='project-description'>
+            " . nl2br(e($description)) . "
+        </div>
     ";
+
+
+    if (!empty($technologies)) {
+
+        $projects_html .= "
+
+        <div class='project-details'>
+            <strong>Technologies:</strong>
+            " . e($technologies) . "
+        </div>
+
+        ";
+    }
 
 
     if (!empty($github_link)) {
 
         $projects_html .= "
 
-            <p>
-                <strong>
-                    GitHub:
-                </strong>
-                " .
-                e($github_link) .
-            "</p>
+        <div class='project-details'>
+            <strong>GitHub:</strong>
+            " . e($github_link) . "
+        </div>
 
         ";
-
     }
 
 
     $projects_html .= "
 
-        </div>
+    </div>
 
     ";
-
 }
 
 
 $projects_stmt->close();
 
 
-/* =========================
-   PROFILE PHOTO
-   ========================= */
-
-$photo_html = "";
-
-
-if (!empty($profile_photo)) {
-
-    $photo_path =
-        __DIR__ . "/../" . $profile_photo;
-
-
-    if (file_exists($photo_path)) {
-
-        $photo_type =
-            mime_content_type($photo_path);
-
-        $photo_data =
-            base64_encode(
-                file_get_contents($photo_path)
-            );
-
-        $photo_html = "
-
-            <img
-                src='data:" .
-                $photo_type .
-                ";base64," .
-                $photo_data .
-                "'
-                class='profile-photo'
-            >
-
-        ";
-
-    }
-
-}
-
-
-/* =========================
-   CREATE PDF HTML
-   ========================= */
+/* =====================================================
+   PDF HTML
+===================================================== */
 
 $html = "
 
@@ -272,150 +242,261 @@ $html = "
 
 <style>
 
+/* =========================
+   A4 PAGE
+========================= */
+
+@page {
+
+    size: A4 portrait;
+
+    margin: 18mm;
+}
+
+
+/* =========================
+   GENERAL
+========================= */
+
 body {
 
-    font-family:
-        DejaVu Sans,
-        sans-serif;
+    margin: 0;
 
-    margin: 35px;
+    padding: 0;
 
-    color: #333;
+    font-family: Arial, Helvetica, sans-serif;
 
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    color: #222222;
+
+    background: #ffffff;
 }
+
+
+/* =========================
+   HEADER
+========================= */
 
 .header {
 
     text-align: center;
 
-    background: #6b4f2a;
+    padding-bottom: 12px;
 
-    color: white;
+    margin-bottom: 16px;
 
-    padding: 25px;
-
-    border-radius: 10px;
-
+    border-bottom: 2px solid #6b4f2a;
 }
 
-.profile-photo {
 
-    width: 100px;
+.name {
 
-    height: 100px;
-
-    object-fit: cover;
-
-    border-radius: 50%;
-
-    border: 3px solid white;
-
-    margin-bottom: 10px;
-
-}
-
-.header h1 {
-
-    margin: 5px 0;
-
-    font-size: 28px;
-
-}
-
-.header h2 {
-
-    margin: 5px 0;
-
-    font-size: 16px;
-
-    font-weight: normal;
-
-}
-
-.section {
-
-    margin-top: 25px;
-
-}
-
-.section-title {
-
-    color: #6b4f2a;
-
-    font-size: 18px;
+    font-size: 25px;
 
     font-weight: bold;
 
-    border-bottom: 2px solid #c9a227;
+    color: #4f3a20;
 
-    padding-bottom: 5px;
+    margin-bottom: 4px;
 
-    margin-bottom: 10px;
-
+    text-transform: uppercase;
 }
 
-p {
 
-    line-height: 1.6;
+.title {
 
+    font-size: 14px;
+
+    color: #555555;
+
+    margin-bottom: 7px;
 }
+
+
+.contact {
+
+    font-size: 10.5px;
+
+    color: #444444;
+
+    line-height: 1.5;
+}
+
+
+.separator {
+
+    color: #c9a227;
+
+    padding: 0 4px;
+}
+
+
+/* =========================
+   SECTIONS
+========================= */
+
+.section {
+
+    margin-bottom: 15px;
+
+    page-break-inside: auto;
+}
+
+
+.section-title {
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    color: #5b421f;
+
+    text-transform: uppercase;
+
+    border-bottom: 1px solid #c9a227;
+
+    padding-bottom: 3px;
+
+    margin-bottom: 7px;
+}
+
+
+/* =========================
+   NORMAL TEXT
+========================= */
+
+.text {
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    text-align: justify;
+
+    margin: 0;
+}
+
+
+/* =========================
+   EDUCATION
+========================= */
+
+.education {
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================
+   SKILLS
+========================= */
 
 .skills {
 
-    line-height: 1.8;
-
+    line-height: 1.9;
 }
+
 
 .skill {
 
     display: inline-block;
 
-    background: #f4df91;
+    border: 1px solid #c9a227;
 
-    padding: 5px 10px;
+    color: #4f3a20;
 
-    margin: 3px;
+    padding: 2px 7px;
 
-    border-radius: 10px;
+    margin-right: 5px;
 
-}
-
-.project {
-
-    border: 1px solid #ddd;
-
-    padding: 12px;
-
-    margin-bottom: 12px;
-
-    border-radius: 8px;
-
-}
-
-.project h3 {
-
-    color: #6b4f2a;
-
-    margin-top: 0;
-
-}
-
-.contact {
-
-    line-height: 1.8;
-
-}
-
-.footer {
-
-    margin-top: 30px;
-
-    text-align: center;
-
-    color: #777;
+    margin-bottom: 3px;
 
     font-size: 11px;
 
+    border-radius: 2px;
+}
+
+
+/* =========================
+   PROJECTS
+========================= */
+
+.project {
+
+    margin-bottom: 10px;
+
+    page-break-inside: avoid;
+}
+
+
+.project-name {
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    color: #4f3a20;
+
+    margin-bottom: 2px;
+}
+
+
+.project-description {
+
+    font-size: 12px;
+
+    line-height: 1.45;
+
+    margin-bottom: 3px;
+}
+
+
+.project-details {
+
+    font-size: 10.5px;
+
+    line-height: 1.4;
+
+    color: #444444;
+}
+
+
+/* =========================
+   EXPERIENCE
+========================= */
+
+.experience {
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    text-align: justify;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+
+    margin-top: 20px;
+
+    padding-top: 6px;
+
+    border-top: 1px solid #dddddd;
+
+    text-align: center;
+
+    font-size: 9px;
+
+    color: #888888;
 }
 
 </style>
@@ -426,181 +507,165 @@ p {
 <body>
 
 
+<!-- =========================
+     HEADER
+========================= -->
+
 <div class='header'>
 
-    " .
-    $photo_html .
-    "
+    <div class='name'>
 
-    <h1>
-        " .
-        e($full_name) .
-        "
-    </h1>
-
-    <h2>
-        " .
-        e($title) .
-        "
-    </h2>
-
-</div>
-
-
-<div class='section'>
-
-    <div class='section-title'>
-        About Me
-    </div>
-
-    <p>
-        " .
-        nl2br(e($bio)) .
-        "
-    </p>
-
-</div>
-
-
-<div class='section'>
-
-    <div class='section-title'>
-        Education
-    </div>
-
-    <p>
-        " .
-        nl2br(e($education)) .
-        "
-    </p>
-
-</div>
-
-
-<div class='section'>
-
-    <div class='section-title'>
-        Skills
-    </div>
-
-    <div class='skills'>
-";
-
-
-$skill_list =
-    explode(",", $skills);
-
-
-foreach ($skill_list as $skill) {
-
-    $skill =
-        trim($skill);
-
-
-    if ($skill != "") {
-
-        $html .= "
-
-            <span class='skill'>
-                " .
-                e($skill) .
-                "
-            </span>
-
-        ";
-
-    }
-
-}
-
-
-$html .= "
+        " . e($full_name) . "
 
     </div>
 
-</div>
 
+    <div class='title'>
 
-<div class='section'>
+        " . e($title) . "
 
-    <div class='section-title'>
-        Projects
     </div>
 
-    " .
-    $projects_html .
-    "
-
-</div>
-
-
-<div class='section'>
-
-    <div class='section-title'>
-        Experience
-    </div>
-
-    <p>
-        " .
-        nl2br(e($experience)) .
-        "
-    </p>
-
-</div>
-
-
-<div class='section'>
-
-    <div class='section-title'>
-        Contact
-    </div>
 
     <div class='contact'>
 
-        <strong>
-            Location:
-        </strong>
-        " .
-        e($location) .
-        "
-
-        <br>
-
-        <strong>
-            Phone:
-        </strong>
-        " .
-        e($phone) .
-        "
-
-        <br>
-
-        <strong>
-            LinkedIn:
-        </strong>
-        " .
-        e($linkedin) .
-        "
-
-        <br>
-
-        <strong>
-            GitHub:
-        </strong>
-        " .
-        e($github) .
-        "
+        " . $contact_html . "
 
     </div>
 
 </div>
 
 
+";
+
+
+/* =====================================================
+   ABOUT
+===================================================== */
+
+if (!empty(trim($bio))) {
+
+    $html .= "
+
+    <div class='section'>
+
+        <div class='section-title'>
+            About Me
+        </div>
+
+        <div class='text'>
+            " . nl2br(e($bio)) . "
+        </div>
+
+    </div>
+
+    ";
+}
+
+
+/* =====================================================
+   EDUCATION
+===================================================== */
+
+if (!empty(trim($education))) {
+
+    $html .= "
+
+    <div class='section'>
+
+        <div class='section-title'>
+            Education
+        </div>
+
+        <div class='education'>
+            " . nl2br(e($education)) . "
+        </div>
+
+    </div>
+
+    ";
+}
+
+
+/* =====================================================
+   SKILLS
+===================================================== */
+
+if (!empty(trim($skills))) {
+
+    $html .= "
+
+    <div class='section'>
+
+        <div class='section-title'>
+            Skills
+        </div>
+
+        <div class='skills'>
+            " . $skills_html . "
+        </div>
+
+    </div>
+
+    ";
+}
+
+
+/* =====================================================
+   PROJECTS
+===================================================== */
+
+if (!empty($projects_html)) {
+
+    $html .= "
+
+    <div class='section'>
+
+        <div class='section-title'>
+            Projects
+        </div>
+
+        " . $projects_html . "
+
+    </div>
+
+    ";
+}
+
+
+/* =====================================================
+   EXPERIENCE
+===================================================== */
+
+if (!empty(trim($experience))) {
+
+    $html .= "
+
+    <div class='section'>
+
+        <div class='section-title'>
+            Experience
+        </div>
+
+        <div class='experience'>
+            " . nl2br(e($experience)) . "
+        </div>
+
+    </div>
+
+    ";
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+$html .= "
+
 <div class='footer'>
 
-    Portfolia
-    |
-    Generated Portfolio
+    PortfolioForge | Generated Portfolio
 
 </div>
 
@@ -612,12 +677,11 @@ $html .= "
 ";
 
 
-/* =========================
-   DOMPDF SETTINGS
-   ========================= */
+/* =====================================================
+   DOMPDF
+===================================================== */
 
-$options =
-    new Options();
+$options = new Options();
 
 $options->set(
     "isRemoteEnabled",
@@ -630,43 +694,44 @@ $options->set(
 );
 
 
-$dompdf =
-    new Dompdf($options);
-
-
-/* Load HTML */
+$dompdf = new Dompdf($options);
 
 $dompdf->loadHtml($html);
-
-
-/* Paper */
 
 $dompdf->setPaper(
     "A4",
     "portrait"
 );
 
-
-/* Render */
-
 $dompdf->render();
 
 
-/* Download PDF */
+/* =====================================================
+   DOWNLOAD
+===================================================== */
 
-$filename =
-    preg_replace(
-        "/[^a-zA-Z0-9_-]/",
-        "_",
-        $full_name
-    );
+$filename = preg_replace(
+    "/[^a-zA-Z0-9_-]/",
+    "_",
+    $full_name
+);
+
+
+if (empty($filename)) {
+
+    $filename = "Portfolio";
+
+}
 
 
 $dompdf->stream(
+
     $filename . "_Portfolio.pdf",
+
     [
         "Attachment" => true
     ]
+
 );
 
 ?>
