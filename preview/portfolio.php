@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 
 if (!isset($_SESSION["user_id"])) {
@@ -11,14 +12,32 @@ require_once "../config/db.php";
 $user_id = $_SESSION["user_id"];
 
 
-/* =========================
-   GET LOGGED-IN USER PROFILE
-   ========================= */
+/* =====================================================
+   HELPER
+===================================================== */
 
-$sql = "SELECT * FROM profiles WHERE user_id = ?";
+function e($value)
+{
+    return htmlspecialchars(
+        $value ?? "",
+        ENT_QUOTES,
+        "UTF-8"
+    );
+}
+
+
+/* =====================================================
+   GET PROFILE
+===================================================== */
+
+$sql = "SELECT *
+        FROM profiles
+        WHERE user_id = ?";
 
 $stmt = $conn->prepare($sql);
+
 $stmt->bind_param("i", $user_id);
+
 $stmt->execute();
 
 $result = $stmt->get_result();
@@ -28,7 +47,9 @@ $profile = $result->fetch_assoc();
 $stmt->close();
 
 
-/* If profile doesn't exist */
+/* =====================================================
+   PROFILE CHECK
+===================================================== */
 
 if (!$profile) {
 
@@ -46,9 +67,9 @@ if (!$profile) {
 }
 
 
-/* =========================
+/* =====================================================
    PROFILE DATA
-   ========================= */
+===================================================== */
 
 $full_name = $profile["full_name"] ?? "";
 $title = $profile["title"] ?? "";
@@ -71,9 +92,9 @@ $profile_photo =
     $profile["profile_photo"] ?? "";
 
 
-/* =========================
-   LOAD USER PROJECTS
-   ========================= */
+/* =====================================================
+   GET PROJECTS
+===================================================== */
 
 $projects_sql = "
     SELECT *
@@ -95,7 +116,65 @@ $projects_stmt->execute();
 $projects_result =
     $projects_stmt->get_result();
 
-?><!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+
+/* =====================================================
+   GET ACTIVITIES
+===================================================== */
+
+$activities_sql = "
+    SELECT *
+    FROM activities
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+";
+
+$activities_stmt =
+    $conn->prepare($activities_sql);
+
+$activities_stmt->bind_param(
+    "i",
+    $user_id
+);
+
+$activities_stmt->execute();
+
+$activities_result =
+    $activities_stmt->get_result();
+
+
+/* =====================================================
+   GET CERTIFICATIONS
+===================================================== */
+
+$certifications_sql = "
+    SELECT *
+    FROM certifications
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+";
+
+$certifications_stmt =
+    $conn->prepare($certifications_sql);
+
+$certifications_stmt->bind_param(
+    "i",
+    $user_id
+);
+
+$certifications_stmt->execute();
+
+$certifications_result =
+    $certifications_stmt->get_result();
+
+?>
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
 
 <meta
     name="viewport"
@@ -103,481 +182,692 @@ $projects_result =
 >
 
 <title>
-    <?php echo htmlspecialchars($full_name); ?> | Portfolio
+    <?php echo e($full_name); ?> | Portfolio
 </title>
 
 
 <style>
 
-    * {
-        box-sizing: border-box;
-    }
+* {
+    box-sizing: border-box;
+}
 
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #fff8dc;
-        color: #333;
-    }
+body {
+    margin: 0;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    background: #fff8dc;
+
+    color: #333;
+}
 
 
-    /* =========================
-       HERO
-       ========================= */
+/* =====================================================
+   HERO
+===================================================== */
 
-    .hero {
-        background:
-            <?php echo htmlspecialchars($theme_color); ?>;
+.hero {
 
-        color: white;
+    background:
+        <?php echo e($theme_color); ?>;
 
-        padding: 70px 20px;
+    color: white;
 
-        text-align: center;
-    }
+    padding:
+        70px 20px;
+
+    text-align: center;
+}
 
 
-    .profile-photo {
-        width: 150px;
-        height: 150px;
+.profile-photo {
 
-        object-fit: cover;
+    width: 150px;
 
-        border-radius: 50%;
+    height: 150px;
 
-        border: 5px solid white;
+    object-fit: cover;
 
-        margin-bottom: 20px;
+    border-radius: 50%;
 
-        box-shadow:
-            0 5px 15px rgba(0,0,0,0.2);
-    }
+    border:
+        5px solid white;
 
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 5px 15px
+        rgba(0,0,0,0.2);
+}
+
+
+.hero h1 {
+
+    font-size: 45px;
+
+    margin:
+        0 0 10px;
+}
+
+
+.hero h2 {
+
+    font-size: 22px;
+
+    font-weight: normal;
+
+    margin: 0;
+
+    color: #f7df8a;
+}
+
+
+/* =====================================================
+   MAIN CONTAINER
+===================================================== */
+
+.container {
+
+    max-width: 1000px;
+
+    margin:
+        40px auto;
+
+    padding:
+        0 20px;
+}
+
+
+/* =====================================================
+   SECTIONS
+===================================================== */
+
+.section {
+
+    background: white;
+
+    margin-bottom: 25px;
+
+    padding: 30px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 6px 18px
+        rgba(0,0,0,0.08);
+}
+
+
+.section h2 {
+
+    color: #6b4f2a;
+
+    margin-top: 0;
+
+    border-bottom:
+        2px solid #c9a227;
+
+    padding-bottom: 10px;
+}
+
+
+.section p {
+
+    line-height: 1.7;
+}
+
+
+/* =====================================================
+   SKILLS
+===================================================== */
+
+.skills {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+}
+
+
+.skill {
+
+    background: #f4df91;
+
+    color: #5c431f;
+
+    padding:
+        9px 15px;
+
+    border-radius: 20px;
+
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   PROJECTS
+===================================================== */
+
+.project-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(270px, 1fr)
+        );
+
+    gap: 20px;
+
+    margin-top: 20px;
+}
+
+
+.project-card {
+
+    background: #fff;
+
+    padding: 25px;
+
+    border-radius: 12px;
+
+    border-top:
+        4px solid
+        <?php echo e($theme_color); ?>;
+
+    box-shadow:
+        0 5px 15px
+        rgba(0,0,0,0.08);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.project-card:hover {
+
+    transform:
+        translateY(-5px);
+
+    box-shadow:
+        0 10px 25px
+        rgba(0,0,0,0.12);
+}
+
+
+.project-card h3 {
+
+    color:
+        <?php echo e($theme_color); ?>;
+
+    margin-top: 0;
+
+    margin-bottom: 12px;
+
+    font-size: 22px;
+}
+
+
+.project-card p {
+
+    color: #555;
+
+    line-height: 1.6;
+}
+
+
+.project-tech {
+
+    margin-top: 15px;
+
+    padding: 10px;
+
+    background: #fff8dc;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+
+    color: #5c431f;
+}
+
+
+.project-link {
+
+    display: inline-block;
+
+    margin-top: 15px;
+
+    color:
+        <?php echo e($theme_color); ?>;
+
+    font-weight: bold;
+
+    text-decoration: none;
+}
+
+
+.project-link:hover {
+
+    text-decoration: underline;
+}
+
+
+.no-projects {
+
+    color: #777;
+
+    text-align: center;
+
+    padding: 20px;
+}
+
+
+/* =====================================================
+   ACTIVITIES
+===================================================== */
+
+.activity-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+
+.activity-card {
+
+    background: #fffdf4;
+
+    border-left:
+        4px solid #c9a227;
+
+    padding:
+        15px 18px;
+
+    border-radius: 8px;
+}
+
+
+.activity-card h3 {
+
+    margin:
+        0 0 8px;
+
+    color: #6b4f2a;
+
+    font-size: 19px;
+}
+
+
+.activity-card p {
+
+    margin: 0;
+
+    line-height: 1.6;
+
+    color: #555;
+}
+
+
+/* =====================================================
+   CERTIFICATIONS
+===================================================== */
+
+.certification-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+
+.certification-card {
+
+    background: #fffdf4;
+
+    border-left:
+        4px solid #c9a227;
+
+    padding:
+        15px 18px;
+
+    border-radius: 8px;
+}
+
+
+.certification-card h3 {
+
+    margin:
+        0 0 8px;
+
+    color: #6b4f2a;
+
+    font-size: 19px;
+}
+
+
+.certification-card p {
+
+    margin:
+        5px 0;
+
+    line-height: 1.5;
+
+    color: #555;
+}
+
+
+.credential-link {
+
+    display: inline-block;
+
+    margin-top: 8px;
+
+    color:
+        <?php echo e($theme_color); ?>;
+
+    font-weight: bold;
+
+    text-decoration: none;
+}
+
+
+.credential-link:hover {
+
+    text-decoration: underline;
+}
+
+
+/* =====================================================
+   CONTACT
+===================================================== */
+
+.contact {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 15px;
+}
+
+
+.contact a {
+
+    text-decoration: none;
+
+    background: #c9a227;
+
+    color: white;
+
+    padding:
+        11px 18px;
+
+    border-radius: 8px;
+}
+
+
+.contact a:hover {
+
+    background: #a88316;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.footer {
+
+    text-align: center;
+
+    padding: 30px;
+
+    color: #777;
+}
+
+
+/* =====================================================
+   CLASSIC
+===================================================== */
+
+body.classic .hero {
+
+    padding:
+        70px 20px;
+
+    text-align: center;
+}
+
+
+body.classic .section {
+
+    border-radius: 15px;
+}
+
+
+/* =====================================================
+   MODERN
+===================================================== */
+
+body.modern {
+
+    background: #f4f4f8;
+}
+
+
+body.modern .hero {
+
+    padding:
+        90px 20px;
+
+    text-align: left;
+}
+
+
+body.modern .hero h1 {
+
+    max-width: 1000px;
+
+    margin: auto;
+
+    font-size: 55px;
+}
+
+
+body.modern .hero h2 {
+
+    max-width: 1000px;
+
+    margin:
+        10px auto 0;
+}
+
+
+body.modern .section {
+
+    border-radius: 5px;
+
+    border-left:
+        5px solid
+        <?php echo e($theme_color); ?>;
+}
+
+
+body.modern .section h2 {
+
+    border-bottom: none;
+}
+
+
+/* =====================================================
+   MINIMAL
+===================================================== */
+
+body.minimal {
+
+    background: #ffffff;
+}
+
+
+body.minimal .hero {
+
+    background: #ffffff;
+
+    color: #333;
+
+    padding:
+        60px 20px;
+
+    text-align: center;
+
+    border-bottom:
+        1px solid #ddd;
+}
+
+
+body.minimal .hero h1 {
+
+    color: #333;
+
+    font-weight: 500;
+}
+
+
+body.minimal .hero h2 {
+
+    color: #777;
+}
+
+
+body.minimal .section {
+
+    box-shadow: none;
+
+    border-radius: 0;
+
+    border-bottom:
+        1px solid #ddd;
+}
+
+
+body.minimal .section h2 {
+
+    border-bottom: none;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
 
     .hero h1 {
-        font-size: 45px;
-        margin: 0 0 10px;
+
+        font-size: 32px;
     }
 
 
     .hero h2 {
-        font-size: 22px;
-        font-weight: normal;
-        margin: 0;
 
-        color: #f7df8a;
+        font-size: 18px;
     }
 
-
-    /* =========================
-       MAIN CONTAINER
-       ========================= */
-
-    .container {
-        max-width: 1000px;
-
-        margin: 40px auto;
-
-        padding: 0 20px;
-    }
-
-
-    /* =========================
-       SECTIONS
-       ========================= */
 
     .section {
-        background: white;
 
-        margin-bottom: 25px;
-
-        padding: 30px;
-
-        border-radius: 15px;
-
-        box-shadow:
-            0 6px 18px rgba(0,0,0,0.08);
+        padding: 22px;
     }
 
 
-    .section h2 {
-        color: #6b4f2a;
+    .profile-photo {
 
-        margin-top: 0;
+        width: 120px;
 
-        border-bottom:
-            2px solid #c9a227;
-
-        padding-bottom: 10px;
-    }
-
-
-    .section p {
-        line-height: 1.7;
-    }
-
-
-    /* =========================
-       SKILLS
-       ========================= */
-
-    .skills {
-        display: flex;
-
-        flex-wrap: wrap;
-
-        gap: 10px;
-    }
-
-
-    .skill {
-        background: #f4df91;
-
-        color: #5c431f;
-
-        padding: 9px 15px;
-
-        border-radius: 20px;
-
-        font-weight: bold;
-    }
-
-
-    /* =========================
-       PROJECTS
-       ========================= */
-
-    .project-grid {
-        display: grid;
-
-        grid-template-columns:
-            repeat(
-                auto-fit,
-                minmax(270px, 1fr)
-            );
-
-        gap: 20px;
-
-        margin-top: 20px;
-    }
-
-
-    .project-card {
-        background: #fff;
-
-        padding: 25px;
-
-        border-radius: 12px;
-
-        border-top:
-            4px solid
-            <?php echo htmlspecialchars($theme_color); ?>;
-
-        box-shadow:
-            0 5px 15px rgba(0,0,0,0.08);
-
-        transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-    }
-
-
-    .project-card:hover {
-        transform: translateY(-5px);
-
-        box-shadow:
-            0 10px 25px rgba(0,0,0,0.12);
-    }
-
-
-    .project-card h3 {
-        color:
-            <?php echo htmlspecialchars($theme_color); ?>;
-
-        margin-top: 0;
-
-        margin-bottom: 12px;
-
-        font-size: 22px;
-    }
-
-
-    .project-card p {
-        color: #555;
-
-        line-height: 1.6;
-    }
-
-
-    .project-tech {
-        margin-top: 15px;
-
-        padding: 10px;
-
-        background: #fff8dc;
-
-        border-radius: 8px;
-
-        font-size: 14px;
-
-        color: #5c431f;
-    }
-
-
-    .project-link {
-        display: inline-block;
-
-        margin-top: 15px;
-
-        color:
-            <?php echo htmlspecialchars($theme_color); ?>;
-
-        font-weight: bold;
-
-        text-decoration: none;
-    }
-
-
-    .project-link:hover {
-        text-decoration: underline;
-    }
-
-
-    .no-projects {
-        color: #777;
-
-        text-align: center;
-
-        padding: 20px;
-    }
-
-
-    /* =========================
-       CONTACT
-       ========================= */
-
-    .contact {
-        display: flex;
-
-        flex-wrap: wrap;
-
-        gap: 15px;
-    }
-
-
-    .contact a {
-        text-decoration: none;
-
-        background: #c9a227;
-
-        color: white;
-
-        padding: 11px 18px;
-
-        border-radius: 8px;
-    }
-
-
-    .contact a:hover {
-        background: #a88316;
-    }
-
-
-    /* =========================
-       FOOTER
-       ========================= */
-
-    .footer {
-        text-align: center;
-
-        padding: 30px;
-
-        color: #777;
-    }
-
-
-    /* =========================
-       CLASSIC TEMPLATE
-       ========================= */
-
-    body.classic .hero {
-        padding: 70px 20px;
-
-        text-align: center;
-    }
-
-
-    body.classic .section {
-        border-radius: 15px;
-    }
-
-
-    /* =========================
-       MODERN TEMPLATE
-       ========================= */
-
-    body.modern {
-        background: #f4f4f8;
+        height: 120px;
     }
 
 
     body.modern .hero {
-        padding: 90px 20px;
 
-        text-align: left;
+        text-align: center;
     }
 
 
     body.modern .hero h1 {
-        max-width: 1000px;
 
-        margin: auto;
-
-        font-size: 55px;
+        font-size: 38px;
     }
 
-
-    body.modern .hero h2 {
-        max-width: 1000px;
-
-        margin: 10px auto 0;
-    }
-
-
-    body.modern .section {
-        border-radius: 5px;
-
-        border-left:
-            5px solid
-            <?php echo htmlspecialchars($theme_color); ?>;
-    }
-
-
-    body.modern .section h2 {
-        border-bottom: none;
-    }
-
-
-    /* =========================
-       MINIMAL TEMPLATE
-       ========================= */
-
-    body.minimal {
-        background: #ffffff;
-    }
-
-
-    body.minimal .hero {
-        background: #ffffff;
-
-        color: #333;
-
-        padding: 60px 20px;
-
-        text-align: center;
-
-        border-bottom:
-            1px solid #ddd;
-    }
-
-
-    body.minimal .hero h1 {
-        color: #333;
-
-        font-weight: 500;
-    }
-
-
-    body.minimal .hero h2 {
-        color: #777;
-    }
-
-
-    body.minimal .section {
-        box-shadow: none;
-
-        border-radius: 0;
-
-        border-bottom:
-            1px solid #ddd;
-    }
-
-
-    body.minimal .section h2 {
-        border-bottom: none;
-    }
-
-
-    /* =========================
-       MOBILE
-       ========================= */
-
-    @media (max-width: 600px) {
-
-        .hero h1 {
-            font-size: 32px;
-        }
-
-
-        .hero h2 {
-            font-size: 18px;
-        }
-
-
-        .section {
-            padding: 22px;
-        }
-
-
-        .profile-photo {
-            width: 120px;
-            height: 120px;
-        }
-
-
-        body.modern .hero {
-            text-align: center;
-        }
-
-
-        body.modern .hero h1 {
-            font-size: 38px;
-        }
-
-    }
+}
 
 </style>
 
-</head><body class="<?php echo htmlspecialchars($template); ?>"><!-- =========================
-     HERO SECTION
-     ========================= --><div class="hero"><?php if (!empty($profile_photo)) { ?>
-
-    <img
-        src="../<?php echo htmlspecialchars($profile_photo); ?>"
-        alt="Profile Photo"
-        class="profile-photo"
-    >
-
-<?php } ?>
+</head>
 
 
-<h1>
-    <?php
-    echo htmlspecialchars($full_name);
-    ?>
-</h1>
+<body
+    class="<?php echo e($template); ?>"
+>
 
 
-<h2>
-    <?php
-    echo htmlspecialchars($title);
-    ?>
-</h2>
+<!-- =====================================================
+     HERO
+===================================================== -->
 
-</div><div class="container"><!-- =========================
+<div class="hero">
+
+    <?php if (!empty($profile_photo)) { ?>
+
+        <img
+            src="../<?php echo e($profile_photo); ?>"
+            alt="Profile Photo"
+            class="profile-photo"
+        >
+
+    <?php } ?>
+
+
+    <h1>
+
+        <?php
+        echo e($full_name);
+        ?>
+
+    </h1>
+
+
+    <h2>
+
+        <?php
+        echo e($title);
+        ?>
+
+    </h2>
+
+</div>
+
+
+<div class="container">
+
+
+<!-- =====================================================
      ABOUT
-     ========================= -->
+===================================================== -->
 
 <?php if (!empty($bio)) { ?>
 
@@ -588,11 +878,13 @@ $projects_result =
         </h2>
 
         <p>
+
             <?php
             echo nl2br(
-                htmlspecialchars($bio)
+                e($bio)
             );
             ?>
+
         </p>
 
     </div>
@@ -600,9 +892,9 @@ $projects_result =
 <?php } ?>
 
 
-<!-- =========================
+<!-- =====================================================
      EDUCATION
-     ========================= -->
+===================================================== -->
 
 <?php if (!empty($education)) { ?>
 
@@ -613,11 +905,13 @@ $projects_result =
         </h2>
 
         <p>
+
             <?php
             echo nl2br(
-                htmlspecialchars($education)
+                e($education)
             );
             ?>
+
         </p>
 
     </div>
@@ -625,9 +919,9 @@ $projects_result =
 <?php } ?>
 
 
-<!-- =========================
+<!-- =====================================================
      SKILLS
-     ========================= -->
+===================================================== -->
 
 <?php if (!empty($skills)) { ?>
 
@@ -648,14 +942,15 @@ $projects_result =
 
             foreach ($skill_list as $skill) {
 
-                $skill = trim($skill);
+                $skill =
+                    trim($skill);
 
 
-                if ($skill != "") {
+                if ($skill !== "") {
 
                     echo
                         "<span class='skill'>" .
-                        htmlspecialchars($skill) .
+                        e($skill) .
                         "</span>";
 
                 }
@@ -671,9 +966,9 @@ $projects_result =
 <?php } ?>
 
 
-<!-- =========================
+<!-- =====================================================
      PROJECTS
-     ========================= -->
+===================================================== -->
 
 <div class="section">
 
@@ -682,7 +977,9 @@ $projects_result =
     </h2>
 
 
-    <?php if ($projects_result->num_rows > 0) { ?>
+    <?php if (
+        $projects_result->num_rows > 0
+    ) { ?>
 
 
         <div class="project-grid">
@@ -700,7 +997,7 @@ $projects_result =
                     <h3>
 
                         <?php
-                        echo htmlspecialchars(
+                        echo e(
                             $project["project_name"]
                         );
                         ?>
@@ -708,19 +1005,17 @@ $projects_result =
                     </h3>
 
 
-                    <?php
-                    if (
+                    <?php if (
                         !empty(
                             $project["description"]
                         )
-                    ) {
-                    ?>
+                    ) { ?>
 
                         <p>
 
                             <?php
                             echo nl2br(
-                                htmlspecialchars(
+                                e(
                                     $project["description"]
                                 )
                             );
@@ -731,13 +1026,11 @@ $projects_result =
                     <?php } ?>
 
 
-                    <?php
-                    if (
+                    <?php if (
                         !empty(
                             $project["technologies"]
                         )
-                    ) {
-                    ?>
+                    ) { ?>
 
                         <div class="project-tech">
 
@@ -746,7 +1039,7 @@ $projects_result =
                             </strong>
 
                             <?php
-                            echo htmlspecialchars(
+                            echo e(
                                 $project["technologies"]
                             );
                             ?>
@@ -756,19 +1049,17 @@ $projects_result =
                     <?php } ?>
 
 
-                    <?php
-                    if (
+                    <?php if (
                         !empty(
                             $project["github_link"]
                         )
-                    ) {
-                    ?>
+                    ) { ?>
 
                         <a
                             href="<?php
-                                echo htmlspecialchars(
-                                    $project["github_link"]
-                                );
+                            echo e(
+                                $project["github_link"]
+                            );
                             ?>"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -807,9 +1098,201 @@ $projects_result =
 </div>
 
 
-<!-- =========================
-     EXPERIENCE
-     ========================= -->
+<!-- =====================================================
+     ACTIVITIES
+===================================================== -->
+
+<?php if (
+    $activities_result->num_rows > 0
+) { ?>
+
+    <div class="section">
+
+        <h2>
+            Extracurricular Activities 🎯
+        </h2>
+
+
+        <div class="activity-list">
+
+            <?php while (
+                $activity =
+                $activities_result->fetch_assoc()
+            ) { ?>
+
+
+                <div class="activity-card">
+
+                    <h3>
+
+                        <?php
+                        echo e(
+                            $activity["activity_name"]
+                        );
+                        ?>
+
+                    </h3>
+
+
+                    <?php if (
+                        !empty(
+                            $activity["description"]
+                        )
+                    ) { ?>
+
+                        <p>
+
+                            <?php
+                            echo nl2br(
+                                e(
+                                    $activity["description"]
+                                )
+                            );
+                            ?>
+
+                        </p>
+
+                    <?php } ?>
+
+
+                </div>
+
+
+            <?php } ?>
+
+        </div>
+
+    </div>
+
+<?php } ?>
+
+
+<!-- =====================================================
+     CERTIFICATIONS
+===================================================== -->
+
+<?php if (
+    $certifications_result->num_rows > 0
+) { ?>
+
+    <div class="section">
+
+        <h2>
+            Certifications 🏆
+        </h2>
+
+
+        <div class="certification-list">
+
+            <?php while (
+                $cert =
+                $certifications_result->fetch_assoc()
+            ) { ?>
+
+
+                <div class="certification-card">
+
+
+                    <h3>
+
+                        <?php
+                        echo e(
+                            $cert[
+                                "certification_name"
+                            ]
+                        );
+                        ?>
+
+                    </h3>
+
+
+                    <?php if (
+                        !empty(
+                            $cert[
+                                "issuing_organization"
+                            ]
+                        )
+                    ) { ?>
+
+                        <p>
+
+                            <strong>
+                                Issued by:
+                            </strong>
+
+                            <?php
+                            echo e(
+                                $cert[
+                                    "issuing_organization"
+                                ]
+                            );
+                            ?>
+
+                        </p>
+
+                    <?php } ?>
+
+
+                    <?php if (
+                        !empty(
+                            $cert["issue_date"]
+                        )
+                    ) { ?>
+
+                        <p>
+
+                            <strong>
+                                Date:
+                            </strong>
+
+                            <?php
+                            echo e(
+                                $cert["issue_date"]
+                            );
+                            ?>
+
+                        </p>
+
+                    <?php } ?>
+
+
+                    <?php if (
+                        !empty(
+                            $cert["credential_url"]
+                        )
+                    ) { ?>
+
+                        <a
+                            href="<?php
+                            echo e(
+                                $cert[
+                                    "credential_url"
+                                ]
+                            );
+                            ?>"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="credential-link"
+                        >
+                            🔗 View Credential
+                        </a>
+
+                    <?php } ?>
+
+
+                </div>
+
+
+            <?php } ?>
+
+        </div>
+
+    </div>
+
+<?php } ?>
+
+
+
 
 <?php if (!empty($experience)) { ?>
 
@@ -820,11 +1303,13 @@ $projects_result =
         </h2>
 
         <p>
+
             <?php
             echo nl2br(
-                htmlspecialchars($experience)
+                e($experience)
             );
             ?>
+
         </p>
 
     </div>
@@ -832,9 +1317,9 @@ $projects_result =
 <?php } ?>
 
 
-<!-- =========================
+<!-- =====================================================
      CONTACT
-     ========================= -->
+===================================================== -->
 
 <div class="section">
 
@@ -848,7 +1333,7 @@ $projects_result =
         <p>
             📍
             <?php
-            echo htmlspecialchars($location);
+            echo e($location);
             ?>
         </p>
 
@@ -860,7 +1345,7 @@ $projects_result =
         <p>
             📞
             <?php
-            echo htmlspecialchars($phone);
+            echo e($phone);
             ?>
         </p>
 
@@ -874,7 +1359,7 @@ $projects_result =
 
             <a
                 href="<?php
-                    echo htmlspecialchars($linkedin);
+                echo e($linkedin);
                 ?>"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -889,7 +1374,7 @@ $projects_result =
 
             <a
                 href="<?php
-                    echo htmlspecialchars($github);
+                echo e($github);
                 ?>"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -904,12 +1389,33 @@ $projects_result =
 
 </div>
 
-</div><!-- =========================
-     FOOTER
-     ========================= --><div class="footer">© 2026 Portfolia | Built with PHP & MySQL
 
-</div></body></html><?php
+</div>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<div class="footer">
+
+    © 2026 Portfolia |
+    Built with PHP & MySQL
+
+</div>
+
+
+</body>
+
+</html>
+
+
+<?php
 
 $projects_stmt->close();
+
+$activities_stmt->close();
+
+$certifications_stmt->close();
 
 ?>

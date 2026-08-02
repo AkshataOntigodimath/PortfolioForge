@@ -227,6 +227,178 @@ $projects_stmt->close();
 
 
 /* =====================================================
+   EXTRA CURRICULAR ACTIVITIES
+===================================================== */
+
+$activities_html = "";
+
+$activities_sql = "
+    SELECT *
+    FROM activities
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+";
+
+$activities_stmt = $conn->prepare($activities_sql);
+
+$activities_stmt->bind_param(
+    "i",
+    $user_id
+);
+
+$activities_stmt->execute();
+
+$activities_result = $activities_stmt->get_result();
+
+
+while ($activity = $activities_result->fetch_assoc()) {
+
+    $activity_name =
+        $activity["activity_name"] ?? "";
+
+    $description =
+        $activity["description"] ?? "";
+
+
+    $activities_html .= "
+
+    <div class='activity'>
+
+        <div class='activity-name'>
+            " . e($activity_name) . "
+        </div>
+    ";
+
+
+    if (!empty($description)) {
+
+        $activities_html .= "
+
+        <div class='activity-description'>
+            " . nl2br(e($description)) . "
+        </div>
+
+        ";
+    }
+
+
+    $activities_html .= "
+
+    </div>
+
+    ";
+}
+
+
+$activities_stmt->close();
+
+
+/* =====================================================
+   CERTIFICATIONS
+===================================================== */
+
+$certifications_html = "";
+
+$certifications_sql = "
+    SELECT *
+    FROM certifications
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+";
+
+$certifications_stmt =
+    $conn->prepare($certifications_sql);
+
+$certifications_stmt->bind_param(
+    "i",
+    $user_id
+);
+
+$certifications_stmt->execute();
+
+$certifications_result =
+    $certifications_stmt->get_result();
+
+
+while (
+    $certification =
+    $certifications_result->fetch_assoc()
+) {
+
+    $certification_name =
+        $certification["certification_name"] ?? "";
+
+    $organization =
+        $certification["issuing_organization"] ?? "";
+
+    $issue_date =
+        $certification["issue_date"] ?? "";
+
+    $credential_url =
+        $certification["credential_url"] ?? "";
+
+
+    $certifications_html .= "
+
+    <div class='certification'>
+
+        <div class='certification-name'>
+            " . e($certification_name) . "
+        </div>
+    ";
+
+
+    if (!empty($organization)) {
+
+        $certifications_html .= "
+
+        <div class='certification-details'>
+            <strong>Organization:</strong>
+            " . e($organization) . "
+        </div>
+
+        ";
+    }
+
+
+    if (!empty($issue_date)) {
+
+        $certifications_html .= "
+
+        <div class='certification-details'>
+            <strong>Date:</strong>
+            " . e($issue_date) . "
+        </div>
+
+        ";
+    }
+
+
+    if (!empty($credential_url)) {
+
+        $certifications_html .= "
+
+        <div class='certification-details'>
+            <strong>Credential:</strong>
+            " . e($credential_url) . "
+        </div>
+
+        ";
+    }
+
+
+    $certifications_html .= "
+
+    </div>
+
+    ";
+}
+
+
+$certifications_stmt->close();
+
+
+/* =====================================================
    PDF HTML
 ===================================================== */
 
@@ -273,6 +445,8 @@ body {
     color: #222222;
 
     background: #ffffff;
+
+    font-weight: normal;
 }
 
 
@@ -310,6 +484,8 @@ body {
 
     font-size: 14px;
 
+    font-weight: normal;
+
     color: #555555;
 
     margin-bottom: 7px;
@@ -319,6 +495,8 @@ body {
 .contact {
 
     font-size: 10.5px;
+
+    font-weight: normal;
 
     color: #444444;
 
@@ -343,6 +521,8 @@ body {
     margin-bottom: 15px;
 
     page-break-inside: auto;
+
+    font-weight: normal;
 }
 
 
@@ -372,6 +552,8 @@ body {
 
     font-size: 12px;
 
+    font-weight: normal;
+
     line-height: 1.5;
 
     text-align: justify;
@@ -388,6 +570,8 @@ body {
 
     font-size: 12px;
 
+    font-weight: normal;
+
     line-height: 1.5;
 }
 
@@ -399,6 +583,8 @@ body {
 .skills {
 
     line-height: 1.9;
+
+    font-weight: normal;
 }
 
 
@@ -418,6 +604,8 @@ body {
 
     font-size: 11px;
 
+    font-weight: normal;
+
     border-radius: 2px;
 }
 
@@ -431,6 +619,8 @@ body {
     margin-bottom: 10px;
 
     page-break-inside: avoid;
+
+    font-weight: normal;
 }
 
 
@@ -450,6 +640,8 @@ body {
 
     font-size: 12px;
 
+    font-weight: normal;
+
     line-height: 1.45;
 
     margin-bottom: 3px;
@@ -459,6 +651,8 @@ body {
 .project-details {
 
     font-size: 10.5px;
+
+    font-weight: normal;
 
     line-height: 1.4;
 
@@ -474,9 +668,87 @@ body {
 
     font-size: 12px;
 
+    font-weight: normal;
+
     line-height: 1.5;
 
     text-align: justify;
+}
+
+
+/* =========================
+   ACTIVITIES
+========================= */
+
+.activity {
+
+    margin-bottom: 10px;
+
+    page-break-inside: avoid;
+
+    font-weight: normal;
+}
+
+
+.activity-name {
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    color: #4f3a20;
+
+    margin-bottom: 3px;
+}
+
+
+.activity-description {
+
+    font-size: 11.5px;
+
+    font-weight: normal;
+
+    line-height: 1.45;
+
+    color: #444444;
+}
+
+
+/* =========================
+   CERTIFICATIONS
+========================= */
+
+.certification {
+
+    margin-bottom: 10px;
+
+    page-break-inside: avoid;
+
+    font-weight: normal;
+}
+
+
+.certification-name {
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    color: #4f3a20;
+
+    margin-bottom: 3px;
+}
+
+
+.certification-details {
+
+    font-size: 11px;
+
+    font-weight: normal;
+
+    line-height: 1.4;
+
+    color: #444444;
 }
 
 
@@ -495,6 +767,8 @@ body {
     text-align: center;
 
     font-size: 9px;
+
+    font-weight: normal;
 
     color: #888888;
 }
@@ -534,7 +808,6 @@ body {
     </div>
 
 </div>
-
 
 ";
 
@@ -650,6 +923,50 @@ if (!empty(trim($experience))) {
         <div class='experience'>
             " . nl2br(e($experience)) . "
         </div>
+
+    </div>
+
+    ";
+}
+
+
+/* =====================================================
+   EXTRA CURRICULAR ACTIVITIES
+===================================================== */
+
+if (!empty($activities_html)) {
+
+    $html .= "
+
+    <div class='section'>
+
+        <div class='section-title'>
+            Extra Curricular Activities
+        </div>
+
+        " . $activities_html . "
+
+    </div>
+
+    ";
+}
+
+
+/* =====================================================
+   CERTIFICATIONS
+===================================================== */
+
+if (!empty($certifications_html)) {
+
+    $html .= "
+
+    <div class='section'>
+
+        <div class='section-title'>
+            Certifications
+        </div>
+
+        " . $certifications_html . "
 
     </div>
 
